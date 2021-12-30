@@ -15,6 +15,7 @@ RUN pip install catboost shap sklearn pandas
 
 COPY ./ /kb/module
 RUN mkdir -p /kb/module/work
+RUN mkdir -p /kb/module/work/output_dir
 RUN chmod -R a+rw /kb/module
 
 WORKDIR /kb/module

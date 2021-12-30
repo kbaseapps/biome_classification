@@ -2,6 +2,8 @@
 #BEGIN_HEADER
 import logging
 import os
+import uuid
+from biome_classification import load_model, load_inference_data, inference, generate_output_file_list
 from installed_clients.KBaseReportClient import KBaseReport
 #END_HEADER
 
@@ -50,16 +52,34 @@ class biome_classification:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_biome_classification
-        # initialize a simple catboost model
+        # step 1: load catboost model
+        model = load_model()
 
-        report = KBaseReport(self.callback_url)
-        report_info = report.create({'report': {'objects_created':[],
-                                                'text_message': params['parameter_1']},
-                                                'workspace_name': params['workspace_name']})
-        output = {
-            'report_name': report_info['name'],
-            'report_ref': report_info['ref'],
-        }
+        # step 2: load users' data for prediction using catbost model
+        sample_id_list, X = load_inference_data()
+
+        # step 3: run inference(model.predict) method
+        output_dir = inference(model, sample_id_list, X)
+
+        # step 4: initialize report client
+        kbase_report_client = KBaseReport(self.callback_url, service_ver='dev')
+
+        # step 5: gennerate report
+        output_files = generate_output_file_list(output_dir, self.shared_folder)
+
+        report_params = {'message': '',
+                         'workspace_name': params.get('workspace_name'),
+                         'file_links': output_files,
+                         'direct_html_link_index': 0,
+                         'html_window_height': 333,
+                         'report_object_name': 'biome_classification_report_' + str(uuid.uuid4())}
+        report_info = kbase_report_client.create_extended_report(report_params)
+
+        # # STEP 6: contruct the output to send back
+        output = {'report_name': report_info['name'],
+                  'report_ref': report_info['ref'],
+                  'result_directory': output_dir,
+                  }
         #END run_biome_classification
 
         # At some point might do deeper type checking...
