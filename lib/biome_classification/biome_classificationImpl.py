@@ -51,14 +51,7 @@ class biome_classification:
         # return variables are: output
         #BEGIN run_biome_classification
         # initialize a simple catboost model
-        model = CatBoostClassifier(
-            loss_function='MultiClass',
-            custom_metric='Accuracy',
-            learning_rate=0.15,
-            random_seed=42,
-            l2_leaf_reg=3,
-            iterations=3,
-        )
+
         report = KBaseReport(self.callback_url)
         report_info = report.create({'report': {'objects_created':[],
                                                 'text_message': params['parameter_1']},
