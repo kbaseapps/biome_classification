@@ -43,7 +43,7 @@ def load_inference_data():
 
 def inference(model, sample_ids, inference_data):
     prediction = model.predict(inference_data)
-    output_file_path = os.path.join('/kb/module/work/output_dir', 'prediction.tsv')
+    output_file_path = os.path.join('/opt/work/outputdir', 'prediction.tsv')
     with open(output_file_path, 'w') as f:
         writer = csv.writer(f, delimiter="\t")
         writer.writerow(['Id', 'Predicted Biome'])

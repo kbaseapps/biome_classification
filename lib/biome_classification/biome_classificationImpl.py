@@ -70,8 +70,6 @@ class biome_classification:
         report_params = {'message': '',
                          'workspace_name': params.get('workspace_name'),
                          'file_links': output_files,
-                         'direct_html_link_index': 0,
-                         'html_window_height': 333,
                          'report_object_name': 'biome_classification_report_' + str(uuid.uuid4())}
         report_info = kbase_report_client.create_extended_report(report_params)
 
