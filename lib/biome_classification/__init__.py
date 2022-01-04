@@ -49,7 +49,7 @@ def inference(model, sample_ids, inference_data):
         writer.writerow(['Id', 'Predicted Biome'])
         for i in range(len(prediction)):
             writer.writerow([sample_ids[i], prediction[i][0]])
-    return output_file_path
+    return '/opt/work/outputdir'
 
 
 def generate_output_file_list(result_directory, shared_folder):
