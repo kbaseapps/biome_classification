@@ -3,7 +3,7 @@
 import logging
 import os
 import uuid
-from biome_classification import load_model, load_inference_data, inference, generate_output_file_list
+from biome_classification import load_model, load_inference_data, inference, generate_output_file_list, generate_html_list
 from installed_clients.KBaseReportClient import KBaseReport
 #END_HEADER
 
@@ -66,10 +66,14 @@ class biome_classification:
 
         # step 5: gennerate report
         output_files = generate_output_file_list(output_dir, self.shared_folder)
+        html_report = generate_html_list(self.shared_folder)
 
         report_params = {'message': '',
                          'workspace_name': params.get('workspace_name'),
                          'file_links': output_files,
+                         'html_links': html_report,
+                         'direct_html_link_index': 0,
+                         'html_window_height': 333,
                          'report_object_name': 'biome_classification_report_' + str(uuid.uuid4())}
         report_info = kbase_report_client.create_extended_report(report_params)
 

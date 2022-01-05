@@ -74,6 +74,30 @@ def generate_output_file_list(result_directory, shared_folder):
     return output_files
 
 
+def tsv2html(tsv_file_name, html_file_name):
+    df = pd.read_csv(tsv_file_name, sep='\t', header=0)
+    old_width = pd.get_option('display.max_colwidth')
+    pd.set_option('display.max_colwidth', -1)
+    with open(html_file_name, 'w') as html_file:
+        html_file.write(df.to_html(index=False))
+    pd.set_option('display.max_colwidth', old_width)
+
+
+def generate_html_list(shared_folder):
+    output_report_directory = os.path.join(shared_folder, "output_report_directory")
+    tsv_file_path = '/opt/work/outputdir/prediction.tsv'
+    html_file_path = '/opt/work/outputdir/prediction.html'
+    tsv2html(tsv_file_path, html_file_path)
+
+    copytree("/opt/work/outputdir", output_report_directory)
+    html_links = [
+        {
+            "path": output_report_directory,
+            "name": 'prediction.html',
+            "description": 'Biome prediction report',
+        }
+    ]
+    return html_links
 
 
 
