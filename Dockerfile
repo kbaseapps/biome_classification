@@ -7,9 +7,13 @@ MAINTAINER KBase Developer
 # installation scripts.
 
 # RUN apt-get update
-RUN apt-get update
+RUN \
+    apt-get update && \
+    apt-get -y install gcc && \
+    apt-get install -y --reinstall build-essential
 RUN pip install --upgrade pip
-RUN pip install catboost shap sklearn pandas
+RUN pip install catboost sklearn pandas matplotlib
+RUN pip install git+https://github.com/slundberg/shap.git@b3af833d9c7997994d609df62b1e30834f253469
 
 # -----------------------------------------
 

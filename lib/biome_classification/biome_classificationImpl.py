@@ -3,7 +3,7 @@
 import logging
 import os
 import uuid
-from biome_classification import load_model, load_inference_data, inference, generate_output_file_list, generate_html_list
+from biome_classification import load_model, load_inference_data, inference, generate_output_file_list, generate_html_list, waterfall
 from installed_clients.KBaseReportClient import KBaseReport
 #END_HEADER
 
@@ -60,11 +60,12 @@ class biome_classification:
 
         # step 3: run inference(model.predict) method
         output_dir = inference(model, sample_id_list, X)
+        waterfall(output_dir, model, sample_id_list, X, display_features=5)
 
         # step 4: initialize report client
         kbase_report_client = KBaseReport(self.callback_url, service_ver='dev')
 
-        # step 5: gennerate report
+        # step 5: generate report
         output_files = generate_output_file_list(output_dir, self.shared_folder)
         html_report = generate_html_list(self.shared_folder)
 

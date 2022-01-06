@@ -1,21 +1,29 @@
-import shap
 import csv
+import numpy as np
 import os
-from catboost import CatBoostClassifier
 import pandas as pd
+import matplotlib.pyplot as plt
+import shap
 import uuid
 import zipfile
+from catboost import CatBoostClassifier
 from shutil import copytree
-from sklearn.model_selection import train_test_split
-from sklearn.datasets import load_iris
 
 
-def waterfall(model, X_test):
-    pred_idx = np.where(model.classes_ == model.predict(X_test)[0][0])[0][0] # first sample in test set is classified as pred_idx in model_classes_
-    shap.waterfall_plot(shap.Explanation(values=shap_values[pred_idx][row],
-                                              base_values=explainer.expected_value[pred_idx], data=X_test.iloc[row],
-                                         feature_names=X_test.columns.tolist()),
-                   max_display=30)
+def waterfall(output_dir, model, sample_ids, X, display_features=5):
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X)
+    num_features = len(shap_values)
+    prediction = model.predict(X)
+    for i in range(len(X)):
+        pred_cls_idx = np.where(model.classes_ == prediction[i][0])[0][0]
+        shap.waterfall_plot(shap.Explanation(values=shap_values[pred_cls_idx][i],
+                                             base_values=explainer.expected_value[pred_cls_idx], data=X.iloc[i],
+                                             feature_names=X.columns.tolist()),
+                            max_display=min(display_features, num_features),
+                            show=False)
+        fig = plt.gcf()
+        fig.savefig(os.path.join(output_dir, "{}'s feature importance.png".format(sample_ids[i])), bbox_inches='tight')
 
 
 def load_model():
@@ -63,7 +71,7 @@ def generate_output_file_list(result_directory, shared_folder):
                          allowZip64=True) as zip_file:
         for root, dirs, files in os.walk(result_directory):
             for file in files:
-                if file == 'prediction.tsv':
+                if file.endswith('tsv') or file.endswith('png'):
                     zip_file.write(os.path.join(root, file),
                                    os.path.join(os.path.basename(root), file))
 
