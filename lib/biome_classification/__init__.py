@@ -24,6 +24,7 @@ def waterfall(output_dir, model, sample_ids, X, display_features=5):
                             show=False)
         fig = plt.gcf()
         fig.savefig(os.path.join(output_dir, "{}'s feature importance.png".format(sample_ids[i])), bbox_inches='tight')
+        plt.close()
 
 
 def load_model():

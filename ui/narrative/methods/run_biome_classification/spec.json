@@ -11,16 +11,51 @@
     },
     "parameters": [ 
         {
-            "id": "parameter_1",
+            "id": "Top_possible_labels",
             "optional": true,
             "advanced": false,
             "allow_multiple": false,
-            "default_values": [ "" ],
+            "default_values": [ 10 ],
             "field_type": "text",
             "text_options": {
                 "valid_ws_types": [ ]
             }
-        }
+        },
+        {
+              "id" : "Top_important_features",
+              "optional" : true,
+              "advanced" : false,
+              "allow_multiple" : false,
+              "default_values" : [ 10 ],
+              "field_type" : "text",
+              "text_options" : {
+                  "valid_ws_types" : [ ]
+              }
+          },
+          {
+              "id" : "Model",
+              "optional" : true,
+              "advanced" : false,
+              "allow_multiple" : false,
+              "default_values" : [ "model_1" ],
+              "field_type" : "dropdown",
+              "dropdown_options": {
+	        "options": [
+	            {
+	                "value": "model_1",
+	                "display": "model_1",
+	                "id": "model_1",
+	                "ui_name": "model_1"
+	            },
+	            {
+	                "value": "model_2",
+	                "display": "model_2",
+	                "id": "model_2",
+	                "ui_name": "model_2"
+	            }
+	        ]
+	    }
+          }
     ],
     "behavior": {
         "service-mapping": {
@@ -35,8 +70,14 @@
                     "narrative_system_variable": "workspace_id",
                     "target_property": "workspace_id"
                 },{
-                    "input_parameter": "parameter_1",
-                    "target_property": "parameter_1"
+                    "input_parameter": "Top_possible_labels",
+                    "target_property": "Top_possible_labels"
+                },{
+                    "input_parameter": "Top_important_features",
+                    "target_property": "Top_important_features"
+                },{
+                    "input_parameter": "Model",
+                    "target_property": "Model"
                 }
             ],
             "output_mapping": [
