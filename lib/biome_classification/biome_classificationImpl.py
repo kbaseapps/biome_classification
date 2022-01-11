@@ -52,15 +52,23 @@ class biome_classification:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_biome_classification
+
         # step 1: load catboost model
+        logging.info('Loading the model...')
         model = load_model()
+        logging.info('Model successfully loaded!')
 
         # step 2: load users' data for prediction using catbost model
+        logging.info('Loading user input data...')
         sample_id_list, X = load_inference_data()
+        logging.info('User data successfully loaded!')
 
         # step 3: run inference(model.predict) method
-        output_dir = inference(model, sample_id_list, X)
-        waterfall(output_dir, model, sample_id_list, X, display_features=5)
+        logging.info('User data successfully loaded!')
+        n_labels = params['Top_possible_labels']
+        n_features = params['Top_important_features']
+        output_dir = inference(model, sample_id_list, X, n_labels)
+        waterfall(output_dir, model, sample_id_list, X, n_features)
 
         # step 4: initialize report client
         kbase_report_client = KBaseReport(self.callback_url, service_ver='dev')

@@ -26,7 +26,7 @@ suggestions:
 parameters :
     Top_possible_labels :
         ui-name : |
-            Top possible labels
+            Top predicted biomes
         short-hint : |
             The top n possible labels to be output, n <= number of classes.
 

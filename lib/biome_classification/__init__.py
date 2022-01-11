@@ -1,8 +1,9 @@
 import csv
+import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
-import matplotlib.pyplot as plt
+from pathlib import Path
 import shap
 import uuid
 import zipfile
@@ -10,12 +11,12 @@ from catboost import CatBoostClassifier
 from shutil import copytree
 
 
-def waterfall(output_dir, model, sample_ids, X, display_features=5):
+def waterfall(output_dir, model, sample_ids, X, display_features=10):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X)
     num_features = len(shap_values)
     prediction = model.predict(X)
-    for i in range(len(X)):
+    for i, sample in enumerate(sample_ids):
         pred_cls_idx = np.where(model.classes_ == prediction[i][0])[0][0]
         shap.waterfall_plot(shap.Explanation(values=shap_values[pred_cls_idx][i],
                                              base_values=explainer.expected_value[pred_cls_idx], data=X.iloc[i],
@@ -23,7 +24,8 @@ def waterfall(output_dir, model, sample_ids, X, display_features=5):
                             max_display=min(display_features, num_features),
                             show=False)
         fig = plt.gcf()
-        fig.savefig(os.path.join(output_dir, "{}'s feature importance.png".format(sample_ids[i])), bbox_inches='tight')
+        plt.title("{}_feature_importance.png".format(sample))
+        fig.savefig(os.path.join(output_dir, sample, "{}_feature_importance.png".format(sample)), bbox_inches='tight')
         plt.close()
 
 
@@ -50,15 +52,40 @@ def load_inference_data():
     return sample_id, X
 
 
-def inference(model, sample_ids, inference_data):
-    prediction = model.predict(inference_data)
-    output_file_path = os.path.join('/opt/work/outputdir', 'prediction.tsv')
-    with open(output_file_path, 'w') as f:
-        writer = csv.writer(f, delimiter="\t")
-        writer.writerow(['Id', 'Predicted Biome'])
-        for i in range(len(prediction)):
-            writer.writerow([sample_ids[i], prediction[i][0]])
-    return '/opt/work/outputdir'
+def inference(model, sample_ids, inference_data, n_labels=10):
+    prediction_label = model.predict(inference_data)
+    prediction_prob = model.predict(inference_data, prediction_type="Probability")
+    res = []
+    class_list = model.classes_
+    output_dir = '/opt/work/outputdir'
+    for i, sample in enumerate(sample_ids):
+        # 1. set path for tsv table and plot
+        sample_dir = os.path.join(output_dir, sample)
+        figure_path = os.path.join(sample_dir, "{}_top_predicted_biomes.png".format(sample))
+        tsv_path = os.path.join(sample_dir, "{}_top_predicted_biomes.tsv".format(sample))
+        Path(sample_dir).mkdir(parents=True, exist_ok=True)
+
+        # 2. extract top predicted biomes
+        sample_prob = prediction_prob[i]
+        sorted_idx = np.argsort(sample_prob)[::-1]  # from highest to lowest
+        biome_prob_pair = [(class_list[idx], sample_prob[idx]) for idx in sorted_idx[:n_labels]]
+
+        # 3. save top predicted biome bar plot
+        biome, prob = zip(*biome_prob_pair)
+        plt.barh(biome, prob)
+        plt.title('{}'.format(sample))
+        plt.gca().invert_yaxis()
+        plt.xlabel('probability')
+        plt.savefig(figure_path, bbox_inches='tight')
+        plt.close()
+
+        # 4. save top predicted biome tsv table
+        with open(tsv_path, 'w') as f:
+            writer = csv.writer(f, delimiter="\t")
+            writer.writerow(['Predicted Biome', 'Probabality'])
+            for biome, prob in biome_prob_pair:
+                writer.writerow([biome, prob])
+    return output_dir
 
 
 def generate_output_file_list(result_directory, shared_folder):
