@@ -66,8 +66,8 @@ class biome_classification:
         # step 3: run inference(model.predict) method
         logging.info('User data successfully loaded!')
         print("!!!!!!params:", params)
-        n_labels = params['Top_possible_labels']
-        n_features = params['Top_important_features']
+        n_labels = int(params['Top_possible_labels'])
+        n_features = int(params['Top_important_features'])
         output_dir = inference(model, sample_id_list, X, n_labels)
         waterfall(output_dir, model, sample_id_list, X, n_features)
 
