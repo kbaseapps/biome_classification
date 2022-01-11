@@ -121,15 +121,15 @@ def tsv2html(tsv_file_name, html_file_name):
 
 def generate_html_list(shared_folder):
     output_report_directory = os.path.join(shared_folder, "output_report_directory")
-    tsv_file_path = '/opt/work/outputdir/prediction.tsv'
-    html_file_path = '/opt/work/outputdir/prediction.html'
+    tsv_file_path = '/opt/work/outputdir/EB271-02-01/EB271-02-01_top_predicted_biomes.tsv'
+    html_file_path = '/opt/work/outputdir/EB271-02-01/EB271-02-01_top_predicted_biomes.html'
     tsv2html(tsv_file_path, html_file_path)
 
     copytree("/opt/work/outputdir", output_report_directory)
     html_links = [
         {
-            "path": output_report_directory,
-            "name": 'prediction.html',
+            "path": os.path.join(output_report_directory, 'EB271-02-01'),
+            "name": 'EB271-02-01_top_predicted_biomes.html',
             "description": 'Biome prediction report',
         }
     ]

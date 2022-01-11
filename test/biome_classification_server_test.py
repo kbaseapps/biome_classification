@@ -64,4 +64,7 @@ class biome_classificationTest(unittest.TestCase):
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
         ret = self.serviceImpl.run_biome_classification(self.ctx, {'workspace_name': self.wsName,
-                                                             'parameter_1': 'Hello World!'})
+                                                                   'Top_possible_labels': 5,
+                                                                   'Top_important_features': 5})
+
+
