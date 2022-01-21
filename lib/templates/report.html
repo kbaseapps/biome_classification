@@ -1,22 +1,6 @@
 <!doctype html>
 <html>
  <body>
- <script>
-  const tabs =[
-  {% for tab_name in tabs.keys() %}
-  '{{tab_name}}',
-  {% endfor %}
-  ]
-  console.log({tabs})
- </script>
- <style>
-  section {
-   display: none;
-  }
-  .active{
-   display: block;
-  }
- </style>
  <nav>
   <ul class="nav nav-tabs" role="tablist" id="navigation">
    {% for tab_name in tabs.keys() %}
@@ -29,7 +13,8 @@
   </ul>
  </nav>
  {% for tab_name, tab in tabs.items() %}
- <section id="{{tab_name}}" {% if loop.first %} class="active{% endif %}">
+ <section id="{{tab_name}}" {% if loop.first %}class="active"{% endif %}>
+  <h1>{{tab_name}}</h1>
   <h1>DataFrame of base call counts</h1>
   {{ tab.df }}
  <hr />
@@ -37,5 +22,37 @@
   <img src="{{tab.image}}"/>
  </section>
  {% endfor %}
+ <script>
+ const here = new URL(window.location.href)
+  const tabs =[
+
+  'EB271-05-02',
+
+  'EB271-02-01',
+
+  ]
+  console.log({tabs})
+  const tab_active = here.hash.slice(1) || tabs[0]
+  const tabs_hide = () => tabs.forEach(tab => {
+    const tabDOM = document.getElementById(tab)
+    tabDOM.classList.forEach(cls => {
+        tabDOM.classList.remove(cls)
+    })
+  })
+  const tab_activate = (tab) => {
+    const tabDOM = document.getElementById(tab)
+    tabDOM.classList.add("active")
+  }
+  tabs_hide()
+  tab_activate(tab_active)
+ </script>
+ <style>
+  section {
+   display: none;
+  }
+  .active{
+   display: block;
+  }
+ </style>
  </body>
 </html>
