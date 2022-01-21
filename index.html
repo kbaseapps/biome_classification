@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+ <body>
+ <script defer>
+ const here = new URL(window.location.href)
+ console.log(here)
+  const tabs =[
+  
+  'EB271-05-02',
+  
+  'EB271-02-01',
+  
+  ]
+  console.log({tabs})
+  const tab_active = here.hash.slice(1)
+  const tabs_hide = () => tabs.forEach(tab => {
+    const tabDOM = document.getElementById(tab)
+    console.log(tabDOM)
+    tabDOM.classList.forEach(cls => {
+        tabDOM.classList.remove(cls)
+    })
+  })
+  tabs_hide()
+ </script>
+ <style>
+  section {
+   display: none;
+  }
+  .active{
+   display: block;
+  }
+ </style>
+ <nav>
+  <ul class="nav nav-tabs" role="tablist" id="navigation">
+   
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" role="tab"
+        href="#EB271-05-02" id="EB271-05-02-tab"
+        aria-controls="EB271-05-02" aria-selected="true">EB271-05-02</a>
+    </li>
+   
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" role="tab"
+        href="#EB271-02-01" id="EB271-02-01-tab"
+        aria-controls="EB271-02-01" aria-selected="true">EB271-02-01</a>
+    </li>
+   
+  </ul>
+ </nav>
+ 
+ <section id="EB271-05-02"  class="active">
+  <h1>DataFrame of base call counts</h1>
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Predicted Biome</th>
+      <th>Probabality</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>root:Host-associated:Human:Digestive system</td>
+      <td>0.058432</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>root:Engineered:Bioreactor</td>
+      <td>0.040107</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>root:Engineered:Wastewater:Activated Sludge</td>
+      <td>0.025236</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>root:Environmental:Aquatic:Marine:Oceanic</td>
+      <td>0.022339</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>root:Host-associated:Human:Digestive system:Intestine</td>
+      <td>0.021797</td>
+    </tr>
+  </tbody>
+</table>
+ <hr />
+  <h1>Feature Importance Plot</h1>
+  <img src="EB271-05-02/EB271-05-02_feature_importance.png"/>
+ </section>
+ 
+ <section id="EB271-02-01" ">
+  <h1>DataFrame of base call counts</h1>
+  <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Predicted Biome</th>
+      <th>Probabality</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>root:Environmental:Aquatic:Marine</td>
+      <td>0.274521</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>root:Environmental:Aquatic:Marine:Oceanic</td>
+      <td>0.028800</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>root:Environmental:Aquatic:Marine:Intertidal zone:Estuary</td>
+      <td>0.020056</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>root:Engineered:Bioremediation:Terephthalate:Wastewater</td>
+      <td>0.019685</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>root:Environmental:Terrestrial:Soil</td>
+      <td>0.018279</td>
+    </tr>
+  </tbody>
+</table>
+ <hr />
+  <h1>Feature Importance Plot</h1>
+  <img src="EB271-02-01/EB271-02-01_feature_importance.png"/>
+ </section>
+ 
+ </body>
+</html>

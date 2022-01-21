@@ -14,6 +14,7 @@ RUN \
 RUN pip install --upgrade pip
 RUN pip install catboost sklearn pandas matplotlib
 RUN pip install git+https://github.com/slundberg/shap.git@b3af833d9c7997994d609df62b1e30834f253469
+RUN pip install git+https://github.com/kbase-sfa-2021/sfa@d0ab401a37369e40a84aa62c5276af41253a6139
 
 # -----------------------------------------
 

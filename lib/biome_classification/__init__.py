@@ -1,17 +1,129 @@
+import base64
 import csv
+import logging
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
-from pathlib import Path
 import shap
 import uuid
 import zipfile
+
+from base import Core
 from catboost import CatBoostClassifier
+from pathlib import Path
 from shutil import copytree
 
 
-def waterfall(output_dir, model, sample_ids, X, display_features=10):
+MODULE_DIR = "/kb/module"
+TEMPLATES_DIR = os.path.join(MODULE_DIR, "lib/templates")
+OUTPUT_DIR = '/opt/work/outputdir'
+
+
+class BiomeClassification(Core):
+    def __init__(self, ctx, config, clients_class=None):
+        super().__init__(ctx, config, clients_class)
+        # Here we adjust the instance attributes for our convenience.
+        self.report = self.clients.KBaseReport
+        # self.shared_folder is defined in the Core App class.
+
+    def do_analysis(self, params: dict):
+        # step 1: load catboost model
+        logging.info('Loading the model...')
+        model = load_model()
+        logging.info('Model successfully loaded!')
+
+        # step 2: load users' data for prediction using catbost model
+        logging.info('Loading user input data...')
+        sample_id_list, X = load_inference_data()
+        logging.info('User data successfully loaded!')
+
+        # step 3: run inference(model.predict) method
+        logging.info('User data successfully loaded!')
+        n_labels = int(params['Top_possible_labels'])
+        n_features = int(params['Top_important_features'])
+        inference(model, sample_id_list, X, n_labels)
+        waterfall(model, sample_id_list, X, n_features)
+
+        # step 4: generate report
+        # output_files = generate_output_file_list(output_dir, self.shared_folder)
+        # html_report = generate_html_list(self.shared_folder)
+
+        # report_params = {'message': '',
+        #                  'workspace_name': params.get('workspace_name'),
+        #                  'file_links': output_files,
+        #                  'html_links': html_report,
+        #                  'direct_html_link_index': 0,
+        #                  'html_window_height': 333,
+        #                  'report_object_name': 'biome_classification_report_' + str(uuid.uuid4())}
+        # report_info = self.report.create_extended_report(report_params)
+        #
+        # output = {'report_name': report_info['name'],
+        #           'report_ref': report_info['ref'],
+        #           'result_directory': output_dir,
+        #           }
+        # This path is required to properly use the template.
+        params["output_value"] = "hello"
+
+        # This is the method that generates the HTML report
+        return self.generate_report(params)
+
+    def generate_report(self, params: dict):
+        """
+        This method is where to define the variables to pass to the report.
+        """
+        reports_path = os.path.join(self.shared_folder, "reports")
+        copytree(OUTPUT_DIR, reports_path)
+        # Path to the Jinja template. The template can be adjusted to change
+        # the report.
+        template_path = os.path.join(TEMPLATES_DIR, "report.html")
+        # The keys in this dictionary will be available as variables in the
+        # Jinja template. With the current configuration of the template
+        # engine, HTML output is allowed.
+
+        # HARD CODED
+        # 1. table path
+        first_dir = os.path.join(reports_path, 'EB271-05-02')
+        first_tsv_file = os.path.join(first_dir, 'EB271-05-02_top_predicted_biomes.tsv')
+        with open(first_tsv_file) as f:
+            df = pd.read_csv(f, sep="\t")
+
+        second_dir = os.path.join(reports_path, 'EB271-02-01')
+        second_tsv_file = os.path.join(second_dir, 'EB271-02-01_top_predicted_biomes.tsv')
+        with open(second_tsv_file) as f:
+            df_2 = pd.read_csv(f, sep="\t")
+
+        # 2. image path
+        img_path = 'EB271-05-02/EB271-05-02_feature_importance.png'
+        img_path_2 = 'EB271-02-01/EB271-02-01_feature_importance.png'
+
+        tabs = {'EB271-05-02': dict(df=df.to_html(), image=img_path),
+                'EB271-02-01': dict(df=df_2.to_html(), image=img_path_2)}
+        template_variables = dict(
+
+            tabs=tabs
+        )
+        """
+        template_variables = dict(
+            count_df_html=count_df_html,
+            headers=headers,
+            scores_df_html=scores_df_html,
+            table=table,
+            upa=params["upa"],
+            output_value=params["output_value"],
+        )
+        """
+        # The KBaseReport configuration dictionary
+        config = dict(
+            report_name=f"Biome_Classification_Report_{str(uuid.uuid4())}",
+            reports_path=reports_path,
+            template_variables=template_variables,
+            workspace_name=params["workspace_name"],
+        )
+        return self.create_report_from_template(template_path, config)
+
+
+def waterfall(model, sample_ids, X, display_features=10):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X)
     num_features = len(shap_values)
@@ -25,7 +137,7 @@ def waterfall(output_dir, model, sample_ids, X, display_features=10):
                             show=False)
         fig = plt.gcf()
         plt.title("{}_feature_importance.png".format(sample))
-        fig.savefig(os.path.join(output_dir, sample, "{}_feature_importance.png".format(sample)), bbox_inches='tight')
+        fig.savefig(os.path.join(OUTPUT_DIR , sample, "{}_feature_importance.png".format(sample)), bbox_inches='tight')
         plt.close()
 
 
@@ -55,22 +167,21 @@ def load_inference_data():
 def inference(model, sample_ids, inference_data, n_labels=10):
     prediction_label = model.predict(inference_data)
     prediction_prob = model.predict(inference_data, prediction_type="Probability")
-    res = []
     class_list = model.classes_
     output_dir = '/opt/work/outputdir'
     for i, sample in enumerate(sample_ids):
-        # 1. set path for tsv table and plot
+        # Step 1. set path for tsv table and plot
         sample_dir = os.path.join(output_dir, sample)
         figure_path = os.path.join(sample_dir, "{}_top_predicted_biomes.png".format(sample))
         tsv_path = os.path.join(sample_dir, "{}_top_predicted_biomes.tsv".format(sample))
         Path(sample_dir).mkdir(parents=True, exist_ok=True)
 
-        # 2. extract top predicted biomes
+        # Step 2. extract top predicted biomes
         sample_prob = prediction_prob[i]
         sorted_idx = np.argsort(sample_prob)[::-1]  # from highest to lowest
         biome_prob_pair = [(class_list[idx], sample_prob[idx]) for idx in sorted_idx[:n_labels]]
 
-        # 3. save top predicted biome bar plot
+        # Step 3. save top predicted biome bar plot
         biome, prob = zip(*biome_prob_pair)
         plt.barh(biome, prob)
         plt.title('{}'.format(sample))
@@ -79,13 +190,12 @@ def inference(model, sample_ids, inference_data, n_labels=10):
         plt.savefig(figure_path, bbox_inches='tight')
         plt.close()
 
-        # 4. save top predicted biome tsv table
+        # Step 4. save top predicted biome tsv table
         with open(tsv_path, 'w') as f:
             writer = csv.writer(f, delimiter="\t")
             writer.writerow(['Predicted Biome', 'Probabality'])
             for biome, prob in biome_prob_pair:
                 writer.writerow([biome, prob])
-    return output_dir
 
 
 def generate_output_file_list(result_directory, shared_folder):

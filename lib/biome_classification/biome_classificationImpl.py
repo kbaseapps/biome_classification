@@ -3,7 +3,7 @@
 import logging
 import os
 import uuid
-from biome_classification import load_model, load_inference_data, inference, generate_output_file_list, generate_html_list, waterfall
+from biome_classification import BiomeClassification
 from installed_clients.KBaseReportClient import KBaseReport
 #END_HEADER
 
@@ -41,7 +41,6 @@ class biome_classification:
         #END_CONSTRUCTOR
         pass
 
-
     def run_biome_classification(self, ctx, params):
         """
         This example function accepts any number of parameters and returns results in a KBaseReport
@@ -52,46 +51,16 @@ class biome_classification:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_biome_classification
+        config = dict(
+            callback_url=self.callback_url,
+            shared_folder=self.shared_folder,
+            clients=dict(
+                KBaseReport=KBaseReport,
+            ),
+        )
+        app = BiomeClassification(ctx, config=config)
+        output = app.do_analysis(params)
 
-        # step 1: load catboost model
-        logging.info('Loading the model...')
-        model = load_model()
-        logging.info('Model successfully loaded!')
-
-        # step 2: load users' data for prediction using catbost model
-        logging.info('Loading user input data...')
-        sample_id_list, X = load_inference_data()
-        logging.info('User data successfully loaded!')
-
-        # step 3: run inference(model.predict) method
-        logging.info('User data successfully loaded!')
-        print("!!!!!!params:", params)
-        n_labels = int(params['Top_possible_labels'])
-        n_features = int(params['Top_important_features'])
-        output_dir = inference(model, sample_id_list, X, n_labels)
-        waterfall(output_dir, model, sample_id_list, X, n_features)
-
-        # step 4: initialize report client
-        kbase_report_client = KBaseReport(self.callback_url, service_ver='dev')
-
-        # step 5: generate report
-        output_files = generate_output_file_list(output_dir, self.shared_folder)
-        html_report = generate_html_list(self.shared_folder)
-
-        report_params = {'message': '',
-                         'workspace_name': params.get('workspace_name'),
-                         'file_links': output_files,
-                         'html_links': html_report,
-                         'direct_html_link_index': 0,
-                         'html_window_height': 333,
-                         'report_object_name': 'biome_classification_report_' + str(uuid.uuid4())}
-        report_info = kbase_report_client.create_extended_report(report_params)
-
-        # # STEP 6: contruct the output to send back
-        output = {'report_name': report_info['name'],
-                  'report_ref': report_info['ref'],
-                  'result_directory': output_dir,
-                  }
         #END run_biome_classification
 
         # At some point might do deeper type checking...

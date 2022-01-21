@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+ <body>
+ <script>
+  const tabs =[
+  {% for tab_name in tabs.keys() %}
+  '{{tab_name}}',
+  {% endfor %}
+  ]
+  console.log({tabs})
+ </script>
+ <style>
+  section {
+   display: none;
+  }
+  .active{
+   display: block;
+  }
+ </style>
+ <nav>
+  <ul class="nav nav-tabs" role="tablist" id="navigation">
+   {% for tab_name in tabs.keys() %}
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" role="tab"
+        href="#{{tab_name}}" id="{{tab_name}}-tab"
+        aria-controls="{{tab_name}}" aria-selected="true">{{tab_name}}</a>
+    </li>
+   {% endfor %}
+  </ul>
+ </nav>
+ {% for tab_name, tab in tabs.items() %}
+ <section id="{{tab_name}}" {% if loop.first %} class="active{% endif %}">
+  <h1>DataFrame of base call counts</h1>
+  {{ tab.df }}
+ <hr />
+  <h1>Feature Importance Plot</h1>
+  <img src="{{tab.image}}"/>
+ </section>
+ {% endfor %}
+ </body>
+</html>
