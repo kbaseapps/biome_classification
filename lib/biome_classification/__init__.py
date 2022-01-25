@@ -87,11 +87,13 @@ class BiomeClassification(Core):
         first_tsv_file = os.path.join(first_dir, 'EB271-05-02_top_predicted_biomes.tsv')
         with open(first_tsv_file) as f:
             df = pd.read_csv(f, sep="\t")
+            df.reset_index(drop=True, inplace=True)
 
         second_dir = os.path.join(reports_path, 'EB271-02-01')
         second_tsv_file = os.path.join(second_dir, 'EB271-02-01_top_predicted_biomes.tsv')
         with open(second_tsv_file) as f:
             df_2 = pd.read_csv(f, sep="\t")
+            df_2.reset_index(drop=True, inplace=True)
 
         # 2. image path
         img_path = 'EB271-05-02/EB271-05-02_feature_importance.png'

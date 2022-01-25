@@ -43,8 +43,11 @@
     const tabDOM = document.getElementById(tab)
     tabDOM.classList.add("active")
   }
-  tabs_hide()
-  tab_activate(tab_active)
+  const tab_select = (tab) => {
+    tabs_hide()
+    tab_activate(tab)
+  }
+  tab_select(tab)
  </script>
  <style>
   section {
@@ -53,6 +56,22 @@
   .active{
    display: block;
   }
+  table {
+  border-collapse: collapse;
+  width: 50%;
+  }
+
+  td {
+  text-align: center;
+  padding: 8px;
+  }
+  tr:nth-child(even) {background-color: #f2f2f2;}
+  th {
+  text-align: center;
+  padding: 8px;
+  background-color: #808080;
+  color: white;
+   }
  </style>
  </body>
 </html>

@@ -127,10 +127,18 @@
     const tabDOM = document.getElementById(tab)
     tabDOM.classList.add("active")
   }
-  const tab_select(tab) => {
+  const tab_select = (tab) => {
     tabs_hide()
-    tab_activate(tab_active)
+    tab_activate(tab)
   }
+  tab_select(tab_active)
+
+  function myFunction(tab_active) {
+    alert('It was clicked');
+    }
+    window.onload = function () {
+        document.getElementById(tab_active).addEventListener('click', myFunction, false);
+    }
  </script>
  <style>
   section {
@@ -139,6 +147,20 @@
   .active{
    display: block;
   }
+  .nav-link {
+    display: block;
+    width: 115px;
+    height: 25px;
+    background: #4E9CAF;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    line-height: 25px;
+}
+  table {
+
  </style>
  </body>
 </html>
