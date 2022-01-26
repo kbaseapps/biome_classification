@@ -15,11 +15,13 @@
  {% for tab_name, tab in tabs.items() %}
  <section id="{{tab_name}}" {% if loop.first %}class="active"{% endif %}>
   <h1>{{tab_name}}</h1>
-  <h1>DataFrame of base call counts</h1>
+  <h1>Prediction Results</h1>
   {{ tab.df }}
+  <img src="{{tab.label_image}}"/>
  <hr />
-  <h1>Feature Importance Plot</h1>
-  <img src="{{tab.image}}"/>
+  <h1>Feature Importance</h1>
+  <img src="{{tab.feature_image}}"/>
+
  </section>
  {% endfor %}
  <script>
