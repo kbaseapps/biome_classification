@@ -1,16 +1,25 @@
 <!doctype html>
 <html>
+ <head>
+  <link rel="stylesheet" type="text/css" href="/narrative/static/style/style.min.css">
+  <link rel="stylesheet" type="text/css" href="/narrative/static/kbase/css/kbaseStylesheet.css" >
+ </head>
+ <body>
  <body>
  <nav>
-  <ul class="nav nav-tabs" role="tablist" id="navigation">
-   {% for tab_name in tabs.keys() %}
-    <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" role="tab"
-        href="#{{tab_name}}" id="{{tab_name}}-tab"
-        aria-controls="{{tab_name}}" aria-selected="true">{{tab_name}}</a>
-    </li>
-   {% endfor %}
-  </ul>
+  <div class="container-fluid kb-html-report">
+    <div class="panel panel-default">
+	  <ul class="nav nav-tabs" role="tablist" id="navigation">
+	   {% for tab_name in tabs.keys() %}
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" role="tab"
+			href="#{{tab_name}}" id="{{tab_name}}-tab"
+			aria-controls="{{tab_name}}" aria-selected="true">{{tab_name}}</a>
+		</li>
+	   {% endfor %}
+	  </ul>
+    </div>
+  </div>
  </nav>
  {% for tab_name, tab in tabs.items() %}
  <section id="{{tab_name}}" {% if loop.first %}class="active"{% endif %}>
@@ -25,15 +34,8 @@
  </section>
  {% endfor %}
  <script>
- const here = new URL(window.location.href)
-  const tabs =[
-
-  'EB271-05-02',
-
-  'EB271-02-01',
-
-  ]
-  console.log({tabs})
+  const here = new URL(window.location.href)
+  const tabs = [...document.querySelectorAll('section')].map(tab => tab.id)
   const tab_active = here.hash.slice(1) || tabs[0]
   const tabs_hide = () => tabs.forEach(tab => {
     const tabDOM = document.getElementById(tab)
@@ -49,7 +51,14 @@
     tabs_hide()
     tab_activate(tab)
   }
-  tab_select(tab)
+  tab_select(tab_active)
+  const links = document.querySelectorAll("a.nav-link")
+  const handler = (evt) => {
+    evt.preventDefault()
+    tab = evt.target.id.slice(0, -4)
+    tab_select(tab)
+  }
+  links.forEach(link => link.addEventListener('click', handler))
  </script>
  <style>
   section {
