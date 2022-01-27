@@ -81,7 +81,6 @@ class BiomeClassification(Core):
         # Jinja template. With the current configuration of the template
         # engine, HTML output is allowed.
 
-        # not hard coded
         tabs = {}
         for sub_dir in os.listdir(reports_path):
             if os.path.isdir(os.path.join(reports_path, sub_dir)):
@@ -96,24 +95,7 @@ class BiomeClassification(Core):
                             elif 'predicted_biomes' in file:
                                 label_img_path = os.path.join(sub_dir, file)
                     tabs[sub_dir] = dict(df=df.to_html(index=False), label_image=label_img_path, feature_image=feature_img_path)
-        # # HARD CODED
-        # # 1. table path
-        # first_dir = os.path.join(reports_path, 'EB271-05-02')
-        # first_tsv_file = os.path.join(first_dir, 'EB271-05-02_top_predicted_biomes.tsv')
-        # with open(first_tsv_file) as f:
-        #     df = pd.read_csv(f, sep="\t")
-        #
-        # second_dir = os.path.join(reports_path, 'EB271-02-01')
-        # second_tsv_file = os.path.join(second_dir, 'EB271-02-01_top_predicted_biomes.tsv')
-        # with open(second_tsv_file) as f:
-        #     df_2 = pd.read_csv(f, sep="\t")
-        #
-        # # 2. image path
-        # img_path = 'EB271-05-02/EB271-05-02_feature_importance.png'
-        # img_path_2 = 'EB271-02-01/EB271-02-01_feature_importance.png'
-        #
-        # tabs = {'EB271-05-02': dict(df=df.to_html(index=False), image=img_path),
-        #         'EB271-02-01': dict(df=df_2.to_html(index=False), image=img_path_2)}
+
         template_variables = dict(
 
             tabs=tabs

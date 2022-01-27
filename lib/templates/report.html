@@ -8,17 +8,15 @@
  <body>
  <nav>
   <div class="container-fluid kb-html-report">
-    <div class="panel panel-default">
-	  <ul class="nav nav-tabs" role="tablist" id="navigation">
-	   {% for tab_name in tabs.keys() %}
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" role="tab"
-			href="#{{tab_name}}" id="{{tab_name}}-tab"
-			aria-controls="{{tab_name}}" aria-selected="true">{{tab_name}}</a>
-		</li>
-	   {% endfor %}
-	  </ul>
-    </div>
+   <ul class="nav nav-tabs" role="tablist" id="navigation">
+   {% for tab_name in tabs.keys() %}
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" role="tab"
+        href="#{{tab_name}}" id="{{tab_name}}-tab"
+        aria-controls="{{tab_name}}" aria-selected="true">{{tab_name}}</a>
+    </li>
+   {% endfor %}
+   </ul>
   </div>
  </nav>
  {% for tab_name, tab in tabs.items() %}
@@ -83,6 +81,11 @@
   background-color: #808080;
   color: white;
    }
+
+  .kb-html-report .nav.nav-tabs {
+    margin: 0 -2rem 1rem;
+    padding-left: 2rem;
+  }
  </style>
  </body>
 </html>
