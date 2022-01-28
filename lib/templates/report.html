@@ -2,7 +2,6 @@
 <html>
  <head>
   <link rel="stylesheet" type="text/css" href="/narrative/static/style/style.min.css">
-  <link rel="stylesheet" type="text/css" href="/narrative/static/kbase/css/kbaseStylesheet.css" >
  </head>
  <body>
  <body>
@@ -37,13 +36,18 @@
   const tab_active = here.hash.slice(1) || tabs[0]
   const tabs_hide = () => tabs.forEach(tab => {
     const tabDOM = document.getElementById(tab)
-    tabDOM.classList.forEach(cls => {
-        tabDOM.classList.remove(cls)
-    })
+    tabDOM.classList.forEach(
+      cls => tabDOM.classList.remove(cls)
+    )
+    document.querySelectorAll(".nav-item").forEach(
+      item => item.classList.remove('active')
+    )
   })
   const tab_activate = (tab) => {
     const tabDOM = document.getElementById(tab)
     tabDOM.classList.add("active")
+    const tabListItemDOM = document.getElementById(`${tab}-tab`)
+    tabListItemDOM.parentElement.classList.add("active")
   }
   const tab_select = (tab) => {
     tabs_hide()
@@ -62,25 +66,31 @@
   section {
    display: none;
   }
+
   .active{
    display: block;
   }
+
   table {
-  border-collapse: collapse;
-  width: 50%;
+   border-collapse: collapse;
+   width: 50%;
   }
 
   td {
-  text-align: center;
-  padding: 8px;
+   text-align: center;
+   padding: 8px;
   }
-  tr:nth-child(even) {background-color: #f2f2f2;}
+
+  tr:nth-child(even) {
+   background-color: #f2f2f2;
+  }
+
   th {
-  text-align: center;
-  padding: 8px;
-  background-color: #808080;
-  color: white;
-   }
+   text-align: center;
+   padding: 8px;
+   background-color: #808080;
+   color: white;
+  }
 
   .kb-html-report .nav.nav-tabs {
     margin: 0 -2rem 1rem;
