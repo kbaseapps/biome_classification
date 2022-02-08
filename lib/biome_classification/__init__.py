@@ -16,6 +16,7 @@ from shutil import copytree
 
 
 MODULE_DIR = "/kb/module"
+MODEL_PATH = "/data/model.json"
 TEMPLATES_DIR = os.path.join(MODULE_DIR, "lib/templates")
 OUTPUT_DIR = '/opt/work/outputdir'
 
@@ -146,8 +147,7 @@ def load_model():
             random_seed=42,
             l2_leaf_reg=3,
             iterations=3)
-    model_path = os.path.join('/kb/module/data', 'model_app.json')
-    model.load_model(model_path, format='json')
+    model.load_model(MODEL_PATH, format='json')
     return model
 
 
