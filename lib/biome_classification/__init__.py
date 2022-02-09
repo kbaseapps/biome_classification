@@ -134,7 +134,7 @@ def waterfall(model, sample_ids, X, display_features=10):
                             max_display=min(display_features, num_features),
                             show=False)
         fig = plt.gcf()
-        plt.title("{}_feature_importance.png".format(sample))
+        # plt.title("{}_feature_importance.png".format(sample))
         fig.savefig(os.path.join(OUTPUT_DIR , sample, "{}_feature_importance.png".format(sample)), bbox_inches='tight')
         plt.close()
 
@@ -181,8 +181,14 @@ def inference(model, sample_ids, inference_data, n_labels=10):
         # Step 3. save top predicted biome bar plot
         biome, prob = zip(*biome_prob_pair)
         plt.barh(biome, prob)
-        plt.title('{}'.format(sample))
+        # plt.title('{}'.format(sample))
         plt.gca().invert_yaxis()
+        plt.tick_params(
+            axis='y',  # changes apply to the x-axis
+            which='both',  # both major and minor ticks are affected
+            bottom=False,  # ticks along the bottom edge are off
+            top=False,  # ticks along the top edge are off
+            labelbottom=False)
         plt.xlabel('probability')
         plt.savefig(figure_path, bbox_inches='tight')
         plt.close()

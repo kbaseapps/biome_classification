@@ -22,12 +22,15 @@
  <section id="{{tab_name}}" {% if loop.first %}class="active"{% endif %}>
   <h1>{{tab_name}}</h1>
   <h1>Prediction Results</h1>
-  {{ tab.df }}
-  <img src="{{tab.label_image}}"/>
+  <div class="prediction-result">
+   {{ tab.df }}
+   <img src="{{tab.label_image}}" class="center"/>
+  </div>
  <hr />
   <h1>Feature Importance</h1>
-  <img src="{{tab.feature_image}}"/>
-
+  <div class="feature-importance">
+   <img src="{{tab.feature_image}}" class="center"/>
+  </div>
  </section>
  {% endfor %}
  <script>
@@ -74,6 +77,11 @@
   table {
    border-collapse: collapse;
    width: 50%;
+  }
+
+  .prediction-result{
+    display: flex;
+    flex-direction: row;
   }
 
   td {
