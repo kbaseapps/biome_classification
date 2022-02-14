@@ -176,10 +176,10 @@ def inference(model, sample_ids, inference_data, n_labels=10):
         # Step 2. extract top predicted biomes
         sample_prob = prediction_prob[i]
         sorted_idx = np.argsort(sample_prob)[::-1]  # from highest to lowest
-        biome_prob_pair = [(class_list[idx], sample_prob[idx]) for idx in sorted_idx[:n_labels]]
+        biome_prob_pair = [(class_list[idx], sample_prob[idx]) for idx in sorted_idx]
 
         # Step 3. save top predicted biome bar plot
-        biome, prob = zip(*biome_prob_pair)
+        biome, prob = zip(*biome_prob_pair[:n_labels])
         plt.barh(biome, prob)
         # plt.title('{}'.format(sample))
         plt.gca().invert_yaxis()
@@ -190,6 +190,7 @@ def inference(model, sample_ids, inference_data, n_labels=10):
             top=False,  # ticks along the top edge are off
             labelbottom=False)
         plt.xlabel('probability')
+        plt.title("Top {} predicted biomes".format(n_labels))
         plt.savefig(figure_path, bbox_inches='tight')
         plt.close()
 
