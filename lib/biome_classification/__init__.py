@@ -1,6 +1,7 @@
 import base64
 import csv
 import logging
+import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -11,6 +12,7 @@ import zipfile
 
 from base import Core
 from catboost import CatBoostClassifier
+from jinja2 import DictLoader, Environment, select_autoescape
 from pathlib import Path
 from shutil import copytree
 
@@ -69,6 +71,48 @@ class BiomeClassification(Core):
         # This is the method that generates the HTML report
         return self.generate_report(params)
 
+    def create_report_from_template(self, template_path, config):
+        logging.info("Creating report...")
+        # Create report from template
+        with open(template_path) as tpf:
+            template_source = tpf.read()
+        env = Environment(
+            loader=DictLoader(dict(template=template_source)),
+            autoescape=select_autoescape(default=False)
+        )
+        template = env.get_template("template")
+        report = template.render(**config["template_variables"])
+        # Create report object including report
+        report_name = config["report_name"]
+        reports_path = config["reports_path"]
+        workspace_name = config["workspace_name"]
+        os.makedirs(reports_path, exist_ok=True)
+        report_path = os.path.join(reports_path, "index.html")
+        with open(report_path, "w") as report_file:
+            report_file.write(report)
+        html_links = [
+            {
+                "description": "report",
+                "name": "index.html",
+                "path": reports_path,
+            },
+        ]
+        output_files = generate_output_file_list(OUTPUT_DIR, self.shared_folder)
+        report_info = self.report.create_extended_report(
+            {
+                "direct_html_link_index": 0,
+                "file_links": output_files,
+                "html_links": html_links,
+                "message": "A sample report.",
+                "report_object_name": report_name,
+                "workspace_name": workspace_name,
+            }
+        )
+        return {
+            "report_name": report_info["name"],
+            "report_ref": report_info["ref"],
+        }
+
     def generate_report(self, params: dict):
         """
         This method is where to define the variables to pass to the report.
@@ -83,6 +127,7 @@ class BiomeClassification(Core):
         # engine, HTML output is allowed.
 
         tabs = {}
+        summary_list = []
         for sub_dir in os.listdir(reports_path):
             if os.path.isdir(os.path.join(reports_path, sub_dir)):
                 for _, _, files in os.walk(os.path.join(reports_path, sub_dir)):
@@ -90,15 +135,26 @@ class BiomeClassification(Core):
                         if file.endswith("tsv"):
                             with open(os.path.join(reports_path, sub_dir, file)) as f:
                                 df = pd.read_csv(f, sep="\t")
+                            sample_name = sub_dir
+                            biome, prob = df.iloc[0][0], df.iloc[0][1]
+                            summary_list.append([sample_name, biome, prob])
                         elif file.endswith("png"):
                             if 'feature_importance' in file:
                                 feature_img_path = os.path.join(sub_dir, file)
                             elif 'predicted_biomes' in file:
                                 label_img_path = os.path.join(sub_dir, file)
-                    tabs[sub_dir] = dict(df=df.to_html(index=False), label_image=label_img_path, feature_image=feature_img_path)
+                                img = mpimg.imread(os.path.join(reports_path, sub_dir, file))
+                                _ = plt.imshow(img)
+                                fig = plt.figure()
+                                _, height = fig.get_size_inches() * fig.dpi
+                    tabs[sub_dir] = dict(df=df.to_html(index=False),
+                                         label_image=label_img_path,
+                                         label_img_height=height,
+                                         feature_image=feature_img_path)
+        summary_df = pd.DataFrame(data=summary_list, columns=['Sample', 'Predicted Biome', "Probability"])
 
         template_variables = dict(
-
+            summary=dict(df=summary_df.to_html(index=False)),
             tabs=tabs
         )
         """
