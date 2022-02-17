@@ -58,6 +58,7 @@ class biome_classification:
                 KBaseReport=KBaseReport,
             ),
         )
+        print("################", params)
         app = BiomeClassification(ctx, config=config)
         output = app.do_analysis(params)
 

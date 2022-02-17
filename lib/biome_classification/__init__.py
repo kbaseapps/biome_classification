@@ -18,7 +18,8 @@ from shutil import copytree
 
 
 MODULE_DIR = "/kb/module"
-MODEL_PATH = "/data/model.json"
+MODEL_FAKE_PATH = "/data/model.json"
+MODEL_REAL_PATH = "/data/model_real.json"
 TEMPLATES_DIR = os.path.join(MODULE_DIR, "lib/templates")
 OUTPUT_DIR = '/opt/work/outputdir'
 
@@ -33,7 +34,11 @@ class BiomeClassification(Core):
     def do_analysis(self, params: dict):
         # step 1: load catboost model
         logging.info('Loading the model...')
-        model = load_model()
+        model_flag = params['Model']
+        if model_flag == "model_fake":
+            model = load_model(MODEL_FAKE_PATH)
+        elif model_flag == "model_real_GO":
+            model = load_model(MODEL_REAL_PATH)
         logging.info('Model successfully loaded!')
 
         # step 2: load users' data for prediction using catbost model
@@ -195,7 +200,7 @@ def waterfall(model, sample_ids, X, display_features=10):
         plt.close()
 
 
-def load_model():
+def load_model(model_path):
     model = CatBoostClassifier(
             loss_function='MultiClass',
             custom_metric='Accuracy',
@@ -203,7 +208,7 @@ def load_model():
             random_seed=42,
             l2_leaf_reg=3,
             iterations=3)
-    model.load_model(MODEL_PATH, format='json')
+    model.load_model(model_path, format='json')
     return model
 
 

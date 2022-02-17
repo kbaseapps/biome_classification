@@ -25,6 +25,13 @@ elif [ "${1}" = "init" ] ; then
   curl -L -b cookies.txt -o $filename \
        'https://docs.google.com/uc?export=download&id='$fileid'&confirm='$(<confirm.txt)
   rm -f confirm.txt cookies.txt
+  export fileid=13zasmHvrVyvb29LxchU4eGV7fVT1mbAT
+  export filename=model_real.json
+  curl -L -c cookies.txt 'https://docs.google.com/uc?export=download&id='$fileid \
+     | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1/p' > confirm.txt
+  curl -L -b cookies.txt -o $filename \
+       'https://docs.google.com/uc?export=download&id='$fileid'&confirm='$(<confirm.txt)
+  rm -f confirm.txt cookies.txt
   touch __READY__
 elif [ "${1}" = "bash" ] ; then
   bash
