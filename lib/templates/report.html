@@ -40,6 +40,7 @@
  <section id="summary" class="active">
   <h1>Summary</h1>
   <div class="summary">
+   <iframe src={{summary.tree}} width="900" height="900" scrolling="no" frameBorder="0"> </iframe>
    {{ summary.df }}
   </div>
  </section>
@@ -135,7 +136,9 @@
  }
 
   .summary {
-   max-width: 50%;
+   display: flex;
+   justify-content: space-around;
+   max-width: 90%;
    margin: 0px auto;
   }
 

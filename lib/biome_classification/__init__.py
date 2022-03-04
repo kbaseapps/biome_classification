@@ -1,12 +1,15 @@
 import base64
 import csv
+import json
 import logging
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
+import plotly.io as pio
 import shap
+import shutil
 import uuid
 import zipfile
 
@@ -22,6 +25,7 @@ MODEL_FAKE_PATH = "/data/model.json"
 MODEL_REAL_PATH = "/data/model_real.json"
 TEMPLATES_DIR = os.path.join(MODULE_DIR, "lib/templates")
 OUTPUT_DIR = '/opt/work/outputdir'
+TREE_FILE = os.path.join('/kb/module/data', 'clustering_tree.json')
 
 
 class BiomeClassification(Core):
@@ -124,6 +128,7 @@ class BiomeClassification(Core):
         """
         reports_path = os.path.join(self.shared_folder, "reports")
         copytree(OUTPUT_DIR, reports_path)
+        shutil.copy(TREE_FILE, reports_path)
         # Path to the Jinja template. The template can be adjusted to change
         # the report.
         template_path = os.path.join(TEMPLATES_DIR, "report.html")
@@ -156,10 +161,30 @@ class BiomeClassification(Core):
                                          label_image=label_img_path,
                                          label_img_height=height,
                                          feature_image=feature_img_path)
+            elif os.path.isfile(os.path.join(reports_path, sub_dir)) and 'clustering' in sub_dir:
+                clustering_tree_json = sub_dir
+                with open(os.path.join(reports_path, clustering_tree_json)) as json_f:
+                    fig_dict = json.load(json_f)
         summary_df = pd.DataFrame(data=summary_list, columns=['Sample', 'Predicted Biome', "Probability"])
 
+        # read fig_dict from json file
+        predicted_biomes_list = [item[1] for item in summary_list]
+        # convert list object to ndarray object
+        fig_dict['layout']['yaxis']['ticktext'] = np.array(fig_dict['layout']['yaxis']['ticktext'])
+        for i in range(len((fig_dict['data']))):
+            fig_dict['data'][i]['x'] = np.array(fig_dict['data'][i]['x'])
+            fig_dict['data'][i]['y'] = np.array(fig_dict['data'][i]['y'])
+        # get highlighted biomes
+        highlighted_ticks = []
+        for label in fig_dict['layout']['yaxis']['ticktext']:
+            if label in predicted_biomes_list:
+                highlighted_ticks.append("<span style='color:yellow;font-weight:bold'> {} </span>".format(label))
+            else:
+                highlighted_ticks.append(label)
+        fig_dict['layout']['yaxis']['ticktext'] = highlighted_ticks
+        pio.write_html(fig_dict, os.path.join(reports_path, 'hierarchical_clustering_correlation_with_enrichment_highlight.html'))
         template_variables = dict(
-            summary=dict(df=summary_df.to_html(index=False)),
+            summary=dict(df=summary_df.to_html(index=False), tree='hierarchical_clustering_correlation_with_enrichment_highlight.html'),
             tabs=tabs
         )
         """
